@@ -1,0 +1,46 @@
+# === IDE / Editor ===
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+.apt_generated
+
+# === OS ===
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# === Environment / Secrets ===
+.env.local
+.env.*.local
+*.env
+
+# === Backend (Java / Maven) ===
+backend/target/
+backend/.jqwik-database
+!backend/.mvn/wrapper/maven-wrapper.jar
+*.sql
+
+# === Frontend (Node / Vite) ===
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.env.local
+frontend/.env.production.local
+logs/
+*.log
+npm-debug.log*
+
+# === Docker ===
+docker/postgres_data/
+
+# === Kiro ===
+.kiro/
