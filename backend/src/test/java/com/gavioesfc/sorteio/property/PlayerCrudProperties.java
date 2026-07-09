@@ -113,7 +113,8 @@ public class PlayerCrudProperties {
                     "Filter" + i + System.nanoTime() % 10000,
                     positions[i % positions.length],
                     (i % 5) + 1,
-                    i % 2 == 0
+                    i % 2 == 0,
+                    null
             );
             mockMvc.perform(post("/api/jogadores")
                             .header("Authorization", token())

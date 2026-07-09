@@ -6,6 +6,7 @@ const navItems = [
   { to: '/jogadores', label: 'Jogadores' },
   { to: '/sorteio', label: 'Sorteio' },
   { to: '/historico', label: 'Histórico' },
+  { to: '/aniversariantes', label: 'Aniversariantes' },
 ];
 
 export function NavBar() {

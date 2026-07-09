@@ -182,14 +182,16 @@ public class DrawService {
             }
         }
 
-        if (request.reserva() != null) {
-            Player reservaPlayer = playerRepository.findById(request.reserva())
-                    .orElseThrow(() -> new ResourceNotFoundException("Jogador não encontrado"));
-            assignments.add(TeamAssignment.builder()
-                    .draw(draw)
-                    .player(reservaPlayer)
-                    .team(Team.RESERVA)
-                    .build());
+        if (request.reservas() != null) {
+            for (Long playerId : request.reservas()) {
+                Player reservaPlayer = playerRepository.findById(playerId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Jogador não encontrado"));
+                assignments.add(TeamAssignment.builder()
+                        .draw(draw)
+                        .player(reservaPlayer)
+                        .team(Team.RESERVA)
+                        .build());
+            }
         }
 
         // Recalculate averages

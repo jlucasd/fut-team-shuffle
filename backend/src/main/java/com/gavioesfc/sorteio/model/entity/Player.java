@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -35,6 +36,9 @@ public class Player {
 
     @Column(nullable = false)
     private Boolean ativo;
+
+    @Column(name = "data_nascimento")
+    private LocalDate dataNascimento;
 
     private LocalDateTime createdAt;
 

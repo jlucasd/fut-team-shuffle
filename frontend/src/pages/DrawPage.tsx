@@ -145,7 +145,7 @@ export function DrawPage() {
         data: {
           timeAmarelo: editedAmarelo.map((p) => p.id),
           timePreto: editedPreto.map((p) => p.id),
-          reserva: editedReservas?.[0]?.id,
+          reservas: editedReservas.map((p) => p.id),
         },
       });
       setDraw(result);
@@ -258,6 +258,7 @@ export function DrawPage() {
           <ShareImagePanel
             timeAmarelo={editedAmarelo}
             timePreto={editedPreto}
+            reservas={editedReservas}
             mediaAmarelo={averages.mediaAmarelo}
             mediaPreto={averages.mediaPreto}
             dataHora={currentDraw.dataHora}

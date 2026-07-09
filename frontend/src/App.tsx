@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { PlayersPage } from './pages/PlayersPage';
 import { DrawPage } from './pages/DrawPage';
 import { HistoryPage } from './pages/HistoryPage';
+import { AniversariantesPage } from './pages/AniversariantesPage';
 import { useAuthStore } from './stores/authStore';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -31,6 +32,7 @@ function App() {
         <Route path="jogadores" element={<PlayersPage />} />
         <Route path="sorteio" element={<DrawPage />} />
         <Route path="historico" element={<HistoryPage />} />
+        <Route path="aniversariantes" element={<AniversariantesPage />} />
       </Route>
     </Routes>
   );

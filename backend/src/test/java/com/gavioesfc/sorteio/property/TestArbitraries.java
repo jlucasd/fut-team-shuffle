@@ -37,7 +37,7 @@ public class TestArbitraries {
         Arbitrary<Boolean> ativos = Arbitraries.of(true);
 
         return Combinators.combine(nomes, positions, niveis, ativos)
-                .as(PlayerCreateRequest::new);
+                .as((nome, pos, nivel, ativo) -> new PlayerCreateRequest(nome, pos, nivel, ativo, null));
     }
 
     /**
@@ -56,7 +56,7 @@ public class TestArbitraries {
         Arbitrary<Boolean> ativos = Arbitraries.of(true, false);
 
         return Combinators.combine(nomes, positions, niveis, ativos)
-                .as(PlayerCreateRequest::new);
+                .as((nome, pos, nivel, ativo) -> new PlayerCreateRequest(nome, pos, nivel, ativo, null));
     }
 
     /**
@@ -86,7 +86,7 @@ public class TestArbitraries {
         Arbitrary<Integer> niveis = Arbitraries.integers().between(1, 5);
 
         return Combinators.combine(blankNomes, positions, niveis)
-                .as((nome, pos, nivel) -> new PlayerCreateRequest(nome, pos, nivel, true));
+                .as((nome, pos, nivel) -> new PlayerCreateRequest(nome, pos, nivel, true, null));
     }
 
     private static Arbitrary<PlayerCreateRequest> invalidNivelPlayers() {
@@ -98,7 +98,7 @@ public class TestArbitraries {
         );
 
         return Combinators.combine(nomes, positions, invalidNiveis)
-                .as((nome, pos, nivel) -> new PlayerCreateRequest(nome, pos, nivel, true));
+                .as((nome, pos, nivel) -> new PlayerCreateRequest(nome, pos, nivel, true, null));
     }
 
     private static Arbitrary<PlayerCreateRequest> nullPosicaoPlayers() {
@@ -106,7 +106,7 @@ public class TestArbitraries {
         Arbitrary<Integer> niveis = Arbitraries.integers().between(1, 5);
 
         return Combinators.combine(nomes, niveis)
-                .as((nome, nivel) -> new PlayerCreateRequest(nome, null, nivel, true));
+                .as((nome, nivel) -> new PlayerCreateRequest(nome, null, nivel, true, null));
     }
 
     private static Arbitrary<PlayerCreateRequest> nullNivelPlayers() {
@@ -114,7 +114,7 @@ public class TestArbitraries {
         Arbitrary<Position> positions = Arbitraries.of(ALL_POSITIONS);
 
         return Combinators.combine(nomes, positions)
-                .as((nome, pos) -> new PlayerCreateRequest(nome, pos, null, true));
+                .as((nome, pos) -> new PlayerCreateRequest(nome, pos, null, true, null));
     }
 
     private static Arbitrary<PlayerCreateRequest> nullAtivoPlayers() {
@@ -123,7 +123,7 @@ public class TestArbitraries {
         Arbitrary<Integer> niveis = Arbitraries.integers().between(1, 5);
 
         return Combinators.combine(nomes, positions, niveis)
-                .as((nome, pos, nivel) -> new PlayerCreateRequest(nome, pos, nivel, null));
+                .as((nome, pos, nivel) -> new PlayerCreateRequest(nome, pos, nivel, null, null));
     }
 
     /**

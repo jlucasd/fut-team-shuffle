@@ -5,5 +5,5 @@ import java.util.List;
 public record TeamEditRequest(
         List<Long> timeAmarelo,
         List<Long> timePreto,
-        Long reserva
+        List<Long> reservas
 ) {}

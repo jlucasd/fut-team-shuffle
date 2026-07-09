@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
+
 public record PlayerUpdateRequest(
         @NotBlank(message = "Nome não pode ser vazio")
         String nome,
@@ -19,5 +21,7 @@ public record PlayerUpdateRequest(
         Integer nivel,
 
         @NotNull(message = "Status ativo é obrigatório")
-        Boolean ativo
+        Boolean ativo,
+
+        LocalDate dataNascimento
 ) {}

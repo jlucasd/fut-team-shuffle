@@ -26,6 +26,7 @@ export function PlayerForm({ player, onSubmit, onCancel, isLoading }: PlayerForm
   const [posicao, setPosicao] = useState<Position | ''>('');
   const [nivel, setNivel] = useState<number>(3);
   const [ativo, setAtivo] = useState(true);
+  const [dataNascimento, setDataNascimento] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
@@ -34,11 +35,13 @@ export function PlayerForm({ player, onSubmit, onCancel, isLoading }: PlayerForm
       setPosicao(player.posicao);
       setNivel(player.nivel);
       setAtivo(player.ativo);
+      setDataNascimento(player.dataNascimento ?? '');
     } else {
       setNome('');
       setPosicao('');
       setNivel(3);
       setAtivo(true);
+      setDataNascimento('');
     }
     setErrors({});
   }, [player]);
@@ -69,6 +72,7 @@ export function PlayerForm({ player, onSubmit, onCancel, isLoading }: PlayerForm
       posicao: posicao as Position,
       nivel,
       ativo,
+      dataNascimento: dataNascimento || null,
     };
 
     onSubmit(data);
@@ -144,6 +148,19 @@ export function PlayerForm({ player, onSubmit, onCancel, isLoading }: PlayerForm
             {errors.nivel && (
               <p className="text-red-400 text-sm mt-1 font-body">{errors.nivel}</p>
             )}
+          </div>
+
+          <div>
+            <label htmlFor="dataNascimento" className="block text-sm font-body text-gavioes-white/80 mb-1">
+              Data de nascimento
+            </label>
+            <input
+              id="dataNascimento"
+              type="date"
+              value={dataNascimento}
+              onChange={(e) => setDataNascimento(e.target.value)}
+              className="w-full px-3 py-2 rounded bg-gavioes-black border border-gavioes-white/20 text-gavioes-white font-body focus:border-gavioes-yellow focus:outline-none"
+            />
           </div>
 
           <div className="flex items-center gap-3">

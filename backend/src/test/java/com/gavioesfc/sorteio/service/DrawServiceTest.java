@@ -19,6 +19,7 @@ import com.gavioesfc.sorteio.repository.TeamAssignmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
@@ -195,5 +196,33 @@ class DrawServiceTest {
         assertThat(draw.getMediaAmarelo()).isEqualTo(3.0);
         assertThat(draw.getMediaPreto()).isEqualTo(3.0);
         assertThat(draw.getEquilibrado()).isTrue();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void updateTeams_persistsAllReserves() {
+        Draw draw = Draw.builder().id(1L).dataHora(LocalDateTime.now()).mediaAmarelo(3.0).mediaPreto(3.0).equilibrado(true).build();
+        when(drawRepository.findById(1L)).thenReturn(Optional.of(draw));
+
+        Player a1 = createPlayer(1L, "Amarelo 1", Position.MEIO, 3, true);
+        Player p1 = createPlayer(2L, "Preto 1", Position.ATACANTE, 3, true);
+        Player r1 = createPlayer(3L, "Reserva 1", Position.ZAGUEIRO, 3, true);
+        Player r2 = createPlayer(4L, "Reserva 2", Position.GOLEIRO, 3, true);
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(a1));
+        when(playerRepository.findById(2L)).thenReturn(Optional.of(p1));
+        when(playerRepository.findById(3L)).thenReturn(Optional.of(r1));
+        when(playerRepository.findById(4L)).thenReturn(Optional.of(r2));
+        when(drawRepository.save(any(Draw.class))).thenReturn(draw);
+        when(teamAssignmentRepository.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+
+        TeamEditRequest request = new TeamEditRequest(List.of(1L), List.of(2L), List.of(3L, 4L));
+        drawService.updateTeams(1L, request);
+
+        ArgumentCaptor<List<TeamAssignment>> captor = ArgumentCaptor.forClass(List.class);
+        verify(teamAssignmentRepository).saveAll(captor.capture());
+        long reservaCount = captor.getValue().stream()
+                .filter(a -> a.getTeam() == Team.RESERVA)
+                .count();
+        assertThat(reservaCount).isEqualTo(2);
     }
 }

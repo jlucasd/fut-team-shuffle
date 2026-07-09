@@ -12,6 +12,7 @@ const positionLabels: Record<string, string> = {
 interface ShareImagePanelProps {
   timeAmarelo: Player[];
   timePreto: Player[];
+  reservas?: Player[];
   mediaAmarelo: number;
   mediaPreto: number;
   dataHora: string;
@@ -20,6 +21,7 @@ interface ShareImagePanelProps {
 export function ShareImagePanel({
   timeAmarelo,
   timePreto,
+  reservas = [],
   mediaAmarelo,
   mediaPreto,
   dataHora,
@@ -230,6 +232,56 @@ export function ShareImagePanel({
             </p>
           </div>
         </div>
+
+        {/* Reserves */}
+        {reservas.length > 0 && (
+          <div style={{ marginTop: '24px' }}>
+            <h2
+              style={{
+                color: '#FFFFFF',
+                opacity: 0.85,
+                fontSize: '20px',
+                fontFamily: '"Bebas Neue", sans-serif',
+                textAlign: 'center',
+                marginBottom: '12px',
+                paddingBottom: '6px',
+                borderBottom: '2px solid rgba(255,255,255,0.3)',
+                letterSpacing: '1px',
+              }}
+            >
+              RESERVAS
+            </h2>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                gap: '8px',
+              }}
+            >
+              {reservas.map((player) => (
+                <span
+                  key={player.id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    backgroundColor: '#1A1A1A',
+                    borderRadius: '4px',
+                    color: '#FFFFFF',
+                    fontSize: '14px',
+                  }}
+                >
+                  {player.nome}
+                  <span style={{ color: '#F5C518', fontSize: '12px', opacity: 0.8 }}>
+                    {positionLabels[player.posicao] || player.posicao}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Action Buttons */}

@@ -164,7 +164,8 @@ public class DrawIntegrationProperties {
                     "DrawP" + i + "_" + System.nanoTime() % 10000,
                     positions[i % positions.length],
                     (i % 5) + 1,
-                    true
+                    true,
+                    null
             );
 
             MvcResult result = mockMvc.perform(post("/api/jogadores")

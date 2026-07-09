@@ -6,6 +6,7 @@ export interface Player {
   posicao: Position;
   nivel: number;
   ativo: boolean;
+  dataNascimento?: string | null;
 }
 
 export interface PlayerCreateRequest {
@@ -13,6 +14,7 @@ export interface PlayerCreateRequest {
   posicao: Position;
   nivel: number;
   ativo: boolean;
+  dataNascimento?: string | null;
 }
 
 export interface PlayerUpdateRequest {
@@ -20,6 +22,7 @@ export interface PlayerUpdateRequest {
   posicao: Position;
   nivel: number;
   ativo: boolean;
+  dataNascimento?: string | null;
 }
 
 export interface PageResponse<T> {
@@ -48,5 +51,5 @@ export interface DrawRequest {
 export interface TeamEditRequest {
   timeAmarelo: number[];
   timePreto: number[];
-  reserva?: number;
+  reservas?: number[];
 }
