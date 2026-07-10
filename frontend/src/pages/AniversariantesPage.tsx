@@ -1,5 +1,7 @@
-import { usePlayersQuery } from '../hooks/usePlayersQuery';
+import { useState } from 'react';
+import { usePlayersQuery, useUpdatePlayer } from '../hooks/usePlayersQuery';
 import { useBirthdayNotifications } from '../hooks/useBirthdayNotifications';
+import type { Player } from '../types';
 import {
   daysUntilBirthday,
   formatDayMonth,
@@ -19,10 +21,55 @@ function daysLabel(iso: string): string {
 export function AniversariantesPage() {
   const { data, isLoading, isError } = usePlayersQuery({ size: 100 });
   const { supported, permission, enabled, enable, disable } = useBirthdayNotifications();
+  const updateMutation = useUpdatePlayer();
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editNome, setEditNome] = useState('');
+  const [editData, setEditData] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
 
   const players = data?.content ?? [];
   const withBirthday = sortByUpcomingBirthday(players);
   const withoutBirthday = players.filter((p) => !p.dataNascimento);
+  const orderedPlayers: Player[] = [...withBirthday, ...withoutBirthday];
+
+  function startEdit(player: Player) {
+    setEditingId(player.id);
+    setEditNome(player.nome);
+    setEditData(player.dataNascimento ?? '');
+    setEditError(null);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditError(null);
+  }
+
+  function saveEdit(player: Player) {
+    if (!editNome.trim()) {
+      setEditError('O nome é obrigatório.');
+      return;
+    }
+    updateMutation.mutate(
+      {
+        id: player.id,
+        data: {
+          nome: editNome.trim(),
+          posicao: player.posicao,
+          nivel: player.nivel,
+          ativo: player.ativo,
+          dataNascimento: editData || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditingId(null);
+          setEditError(null);
+        },
+        onError: () => setEditError('Erro ao salvar. Tente novamente.'),
+      }
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -81,48 +128,105 @@ export function AniversariantesPage() {
 
       {data && (
         <>
-          {withBirthday.length === 0 && (
+          {orderedPlayers.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gavioes-white/60">Nenhuma data de nascimento cadastrada ainda.</p>
-              <p className="text-sm text-gavioes-white/40 mt-1">
-                Adicione a data de nascimento ao editar um jogador.
-              </p>
+              <p className="text-gavioes-white/60">Nenhum jogador cadastrado ainda.</p>
             </div>
           )}
 
-          {withBirthday.length > 0 && (
-            <div className="space-y-2">
-              {withBirthday.map((player) => {
-                const iso = player.dataNascimento!;
-                const soon = isBirthdayToday(iso) || isBirthdayTomorrow(iso);
+          <div className="space-y-2">
+            {orderedPlayers.map((player) => {
+              const iso = player.dataNascimento;
+              const soon = !!iso && (isBirthdayToday(iso) || isBirthdayTomorrow(iso));
+              const isRowEditing = editingId === player.id;
+
+              if (isRowEditing) {
                 return (
                   <div
                     key={player.id}
-                    className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
-                      soon
-                        ? 'bg-gavioes-yellow/10 border-gavioes-yellow/50'
-                        : 'bg-gavioes-dark-gray border-gavioes-white/10'
-                    }`}
+                    className="p-4 rounded-lg border border-gavioes-yellow/60 bg-gavioes-dark-gray"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-2xl" aria-hidden="true">🎂</span>
-                      <div className="min-w-0">
-                        <p className="text-gavioes-white font-medium truncate">{player.nome}</p>
-                        <p className="text-sm text-gavioes-white/60">{formatDayMonth(iso)}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                      <div className="flex-1">
+                        <label className="block text-xs text-gavioes-white/60 mb-1">Nome</label>
+                        <input
+                          type="text"
+                          value={editNome}
+                          onChange={(e) => setEditNome(e.target.value)}
+                          className="w-full px-3 py-2 rounded bg-gavioes-black border border-gavioes-white/20 text-gavioes-white focus:border-gavioes-yellow focus:outline-none"
+                          placeholder="Nome do jogador"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gavioes-white/60 mb-1">Data de nascimento</label>
+                        <input
+                          type="date"
+                          value={editData}
+                          onChange={(e) => setEditData(e.target.value)}
+                          className="w-full px-3 py-2 rounded bg-gavioes-black border border-gavioes-white/20 text-gavioes-white focus:border-gavioes-yellow focus:outline-none"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveEdit(player)}
+                          disabled={updateMutation.isPending}
+                          className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-yellow text-gavioes-black hover:bg-gavioes-yellow/90 transition-colors disabled:opacity-50"
+                        >
+                          {updateMutation.isPending ? 'Salvando...' : 'Salvar'}
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          disabled={updateMutation.isPending}
+                          className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-dark-gray border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10 transition-colors disabled:opacity-50"
+                        >
+                          Cancelar
+                        </button>
                       </div>
                     </div>
-                    <span
-                      className={`shrink-0 text-sm font-medium ${
-                        soon ? 'text-gavioes-yellow' : 'text-gavioes-white/50'
-                      }`}
-                    >
-                      {daysLabel(iso)}
-                    </span>
+                    {editError && <p className="text-red-400 text-sm mt-2">{editError}</p>}
                   </div>
                 );
-              })}
-            </div>
-          )}
+              }
+
+              return (
+                <div
+                  key={player.id}
+                  className={`flex items-center justify-between gap-3 p-4 rounded-lg border transition-colors ${
+                    soon
+                      ? 'bg-gavioes-yellow/10 border-gavioes-yellow/50'
+                      : 'bg-gavioes-dark-gray border-gavioes-white/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-2xl" aria-hidden="true">🎂</span>
+                    <div className="min-w-0">
+                      <p className="text-gavioes-white font-medium truncate">{player.nome}</p>
+                      <p className="text-sm text-gavioes-white/60">
+                        {iso ? formatDayMonth(iso) : 'Sem data cadastrada'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    {iso && (
+                      <span
+                        className={`text-sm font-medium ${
+                          soon ? 'text-gavioes-yellow' : 'text-gavioes-white/50'
+                        }`}
+                      >
+                        {daysLabel(iso)}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => startEdit(player)}
+                      className="px-3 py-1.5 text-sm rounded border border-gavioes-white/30 text-gavioes-white/80 hover:bg-gavioes-white/10 transition-colors"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {withoutBirthday.length > 0 && (
             <p className="text-xs text-gavioes-white/40 pt-2">
