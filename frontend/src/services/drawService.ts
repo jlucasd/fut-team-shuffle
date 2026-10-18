@@ -16,9 +16,13 @@ export async function getDrawById(id: number): Promise<DrawResult> {
   return response.data;
 }
 
-export async function fetchDrawHistory(page: number, size: number): Promise<PageResponse<DrawResult>> {
+export async function fetchDrawHistory(
+  page: number,
+  size: number,
+  equipeId?: number | null
+): Promise<PageResponse<DrawResult>> {
   const response = await api.get<PageResponse<DrawResult>>('/api/sorteio/historico', {
-    params: { page, size },
+    params: { page, size, ...(equipeId ? { equipeId } : {}) },
   });
   return response.data;
 }

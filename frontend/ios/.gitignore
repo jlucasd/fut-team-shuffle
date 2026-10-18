@@ -1,0 +1,19 @@
+App/build
+App/Pods
+App/output
+App/App/public
+DerivedData
+xcuserdata
+
+# Cordova plugins for Capacitor
+capacitor-cordova-ios-plugins
+
+# Generated Config files
+App/App/capacitor.config.json
+App/App/config.xml
+
+# Firebase config (download from the Firebase console, see docs/APP_IOS.md)
+App/App/GoogleService-Info.plist
+
+# Recreated by `npx cap sync` (absolute symlinks into node_modules)
+App/CapApp-SPM/symlinks

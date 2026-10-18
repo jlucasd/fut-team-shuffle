@@ -28,6 +28,10 @@ public class Draw {
 
     private Boolean equilibrado;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipe_id")
+    private Equipe equipe;
+
     @OneToMany(mappedBy = "draw", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TeamAssignment> assignments = new ArrayList<>();

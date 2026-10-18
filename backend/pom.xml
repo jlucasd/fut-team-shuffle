@@ -24,6 +24,7 @@
         <springdoc.version>2.5.0</springdoc.version>
         <jjwt.version>0.12.5</jjwt.version>
         <jqwik.version>1.8.4</jqwik.version>
+        <firebase-admin.version>9.11.0</firebase-admin.version>
     </properties>
 
     <dependencies>
@@ -95,6 +96,13 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Firebase Cloud Messaging (push notifications) -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>${firebase-admin.version}</version>
         </dependency>
 
         <!-- Testing -->

@@ -9,6 +9,7 @@ import {
 } from '../hooks/usePlayersQuery';
 import { PlayerForm } from '../components/PlayerForm';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { useCurrentEquipe } from '../hooks/useEquipes';
 
 const POSITION_LABELS: Record<Position, string> = {
   GOLEIRO: 'Goleiro',
@@ -18,6 +19,7 @@ const POSITION_LABELS: Record<Position, string> = {
 };
 
 export function PlayersPage() {
+  const { equipe, equipeId } = useCurrentEquipe();
   const [page, setPage] = useState(0);
   const [filterPosicao, setFilterPosicao] = useState<Position | ''>('');
   const [filterAtivo, setFilterAtivo] = useState<boolean | ''>('');
@@ -36,7 +38,11 @@ export function PlayersPage() {
     }
   }, [successMessage]);
 
+  // Back to the first page when switching teams
+  useEffect(() => setPage(0), [equipeId]);
+
   const { data, isLoading, isError } = usePlayersQuery({
+    equipeId,
     posicao: filterPosicao || undefined,
     ativo: filterAtivo !== '' ? filterAtivo : undefined,
     page,
@@ -49,7 +55,7 @@ export function PlayersPage() {
   const toggleMutation = useTogglePlayerStatus();
 
   function handleCreate(formData: PlayerCreateRequest | PlayerUpdateRequest) {
-    createMutation.mutate(formData as PlayerCreateRequest, {
+    createMutation.mutate({ ...(formData as PlayerCreateRequest), equipeId }, {
       onSuccess: () => {
         setShowForm(false);
         setSuccessMessage('Jogador criado com sucesso!');
@@ -92,7 +98,10 @@ export function PlayersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-title text-gavioes-yellow">Jogadores</h1>
+        <div>
+          <h1 className="text-3xl font-title text-gavioes-yellow">Jogadores</h1>
+          {equipe && <p className="text-sm text-gavioes-white/60 mt-1">{equipe.nome}</p>}
+        </div>
         <button
           onClick={() => setShowForm(true)}
           className="px-4 py-2 rounded bg-gavioes-yellow text-gavioes-black font-body font-semibold hover:bg-gavioes-yellow/90 transition-colors"
@@ -110,7 +119,7 @@ export function PlayersPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6 items-end">
-        <div className="w-[720px]">
+        <div className="w-full sm:w-[720px]">
           <label htmlFor="filter-nome" className="block text-sm text-gavioes-white/60 font-body mb-1">
             Buscar por nome
           </label>

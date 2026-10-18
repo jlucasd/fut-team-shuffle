@@ -40,6 +40,12 @@ public class Player {
     @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
 
+    // Nullable at the database level so existing rows survive the schema
+    // update; EquipeBackfill assigns them to the default equipe on startup.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "equipe_id")
+    private Equipe equipe;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

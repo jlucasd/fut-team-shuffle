@@ -23,5 +23,12 @@ public record PlayerCreateRequest(
         @NotNull(message = "Status ativo é obrigatório")
         Boolean ativo,
 
-        LocalDate dataNascimento
-) {}
+        LocalDate dataNascimento,
+
+        /** Optional: when absent the player goes to the default equipe. */
+        Long equipeId
+) {
+    public PlayerCreateRequest(String nome, Position posicao, Integer nivel, Boolean ativo, LocalDate dataNascimento) {
+        this(nome, posicao, nivel, ativo, dataNascimento, null);
+    }
+}

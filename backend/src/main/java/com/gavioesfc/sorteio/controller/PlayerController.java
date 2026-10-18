@@ -23,11 +23,12 @@ public class PlayerController {
 
     @GetMapping
     public ResponseEntity<PageResponse<PlayerResponse>> list(
+            @RequestParam(required = false) Long equipeId,
             @RequestParam(required = false) Position posicao,
             @RequestParam(required = false) Boolean ativo,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PageResponse<PlayerResponse> response = playerService.list(posicao, ativo, page, size);
+        PageResponse<PlayerResponse> response = playerService.list(equipeId, posicao, ativo, page, size);
         return ResponseEntity.ok(response);
     }
 

@@ -9,6 +9,11 @@ spring:
     console:
       enabled: false
 
+  # Never load the local dev seed (src/main/resources/data.sql) in tests.
+  sql:
+    init:
+      mode: never
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDrawHistory } from '../hooks/useDrawHistory';
+import { useCurrentEquipe } from '../hooks/useEquipes';
 import type { DrawResult, Player } from '../types';
 
 const positionLabels: Record<string, string> = {
@@ -198,7 +199,11 @@ function DrawDetail({ draw, onBack }: { draw: DrawResult; onBack: () => void }) 
 export function HistoryPage() {
   const [page, setPage] = useState(0);
   const [selectedDraw, setSelectedDraw] = useState<DrawResult | null>(null);
-  const { data, isLoading, isError } = useDrawHistory(page, 20);
+  const { equipe, equipeId } = useCurrentEquipe();
+  const { data, isLoading, isError } = useDrawHistory(page, 20, equipeId);
+
+  // Back to the first page when switching teams
+  useEffect(() => setPage(0), [equipeId]);
 
   if (selectedDraw) {
     return <DrawDetail draw={selectedDraw} onBack={() => setSelectedDraw(null)} />;
@@ -209,7 +214,7 @@ export function HistoryPage() {
       <div>
         <h1 className="text-3xl font-title text-gavioes-yellow">Histórico de Sorteios</h1>
         <p className="text-sm text-gavioes-white/60 mt-1">
-          Consulte os sorteios anteriores
+          Consulte os sorteios anteriores{equipe ? ` — ${equipe.nome}` : ''}
         </p>
       </div>
 

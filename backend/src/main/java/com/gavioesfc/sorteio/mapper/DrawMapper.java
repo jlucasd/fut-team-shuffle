@@ -42,7 +42,8 @@ public class DrawMapper {
                 reservas,
                 draw.getMediaAmarelo(),
                 draw.getMediaPreto(),
-                draw.getEquilibrado()
+                draw.getEquilibrado(),
+                draw.getEquipe() != null ? draw.getEquipe().getId() : null
         );
     }
 }

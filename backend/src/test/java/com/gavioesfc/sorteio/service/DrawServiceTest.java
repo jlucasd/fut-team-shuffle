@@ -14,6 +14,7 @@ import com.gavioesfc.sorteio.model.entity.TeamAssignment;
 import com.gavioesfc.sorteio.model.enums.Position;
 import com.gavioesfc.sorteio.model.enums.Team;
 import com.gavioesfc.sorteio.repository.DrawRepository;
+import com.gavioesfc.sorteio.repository.EquipeRepository;
 import com.gavioesfc.sorteio.repository.PlayerRepository;
 import com.gavioesfc.sorteio.repository.TeamAssignmentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,13 +55,16 @@ class DrawServiceTest {
     @Mock
     private PlayerMapper playerMapper;
 
+    @Mock
+    private EquipeRepository equipeRepository;
+
     private DrawMapper drawMapper;
     private DrawService drawService;
 
     @BeforeEach
     void setUp() {
         drawMapper = new DrawMapper(playerMapper);
-        drawService = new DrawService(drawRepository, playerRepository, teamAssignmentRepository, drawAlgorithm, drawMapper);
+        drawService = new DrawService(drawRepository, playerRepository, teamAssignmentRepository, drawAlgorithm, drawMapper, equipeRepository);
     }
 
     private Player createPlayer(Long id, String nome, Position posicao, int nivel, boolean ativo) {
@@ -156,7 +160,7 @@ class DrawServiceTest {
         when(drawRepository.findAllByOrderByDataHoraDesc(any())).thenReturn(page);
         when(teamAssignmentRepository.findByDrawId(1L)).thenReturn(List.of());
 
-        PageResponse<DrawResponse> response = drawService.getHistory(0, 20);
+        PageResponse<DrawResponse> response = drawService.getHistory(null, 0, 20);
 
         assertThat(response.content()).hasSize(1);
         assertThat(response.totalElements()).isEqualTo(1);

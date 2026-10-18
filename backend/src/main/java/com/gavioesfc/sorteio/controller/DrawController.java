@@ -28,9 +28,10 @@ public class DrawController {
 
     @GetMapping("/historico")
     public ResponseEntity<PageResponse<DrawResponse>> getHistory(
+            @RequestParam(required = false) Long equipeId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        PageResponse<DrawResponse> response = drawService.getHistory(page, size);
+        PageResponse<DrawResponse> response = drawService.getHistory(equipeId, page, size);
         return ResponseEntity.ok(response);
     }
 

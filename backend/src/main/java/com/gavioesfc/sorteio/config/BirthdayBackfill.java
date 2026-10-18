@@ -2,10 +2,12 @@ package com.gavioesfc.sorteio.config;
 
 import com.gavioesfc.sorteio.model.entity.Player;
 import com.gavioesfc.sorteio.repository.PlayerRepository;
+import com.gavioesfc.sorteio.service.EquipeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +24,12 @@ import java.util.Map;
  *
  * Runs on every startup but only fills players whose {@code dataNascimento} is
  * still empty, so it never overwrites data edited through the app. Matching is
- * done by name (case-insensitive) so it works regardless of database IDs.
+ * done by name (case-insensitive) so it works regardless of database IDs, and
+ * only within the default equipe (the club the list belongs to), so members of
+ * other teams with the same name are never touched.
  */
 @Component
+@Order(1)
 public class BirthdayBackfill implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(BirthdayBackfill.class);
@@ -45,19 +50,25 @@ public class BirthdayBackfill implements ApplicationRunner {
     }
 
     private final PlayerRepository playerRepository;
+    private final EquipeService equipeService;
 
-    public BirthdayBackfill(PlayerRepository playerRepository) {
+    public BirthdayBackfill(PlayerRepository playerRepository, EquipeService equipeService) {
         this.playerRepository = playerRepository;
+        this.equipeService = equipeService;
     }
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        Long defaultEquipeId = equipeService.getOrCreateDefault().getId();
         List<Player> players = playerRepository.findAll();
         int updated = 0;
 
         for (Player player : players) {
             if (player.getDataNascimento() != null || player.getNome() == null) {
+                continue;
+            }
+            if (player.getEquipe() == null || !defaultEquipeId.equals(player.getEquipe().getId())) {
                 continue;
             }
             MonthDay md = lookup(player.getNome());

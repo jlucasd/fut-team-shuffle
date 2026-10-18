@@ -7,6 +7,14 @@ export interface Player {
   nivel: number;
   ativo: boolean;
   dataNascimento?: string | null;
+  equipeId?: number | null;
+  equipeNome?: string | null;
+}
+
+/** A club/team whose members are registered in the app (not the draw side). */
+export interface Equipe {
+  id: number;
+  nome: string;
 }
 
 export interface PlayerCreateRequest {
@@ -15,6 +23,7 @@ export interface PlayerCreateRequest {
   nivel: number;
   ativo: boolean;
   dataNascimento?: string | null;
+  equipeId?: number | null;
 }
 
 export interface PlayerUpdateRequest {
@@ -42,10 +51,12 @@ export interface DrawResult {
   mediaAmarelo: number;
   mediaPreto: number;
   equilibrado: boolean;
+  equipeId?: number | null;
 }
 
 export interface DrawRequest {
   jogadorIds: number[];
+  equipeId?: number | null;
 }
 
 export interface TeamEditRequest {

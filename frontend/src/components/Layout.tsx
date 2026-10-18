@@ -2,13 +2,16 @@ import { Outlet } from 'react-router-dom';
 import { NavBar } from './NavBar';
 import { usePlayersQuery } from '../hooks/usePlayersQuery';
 import { useBirthdayScheduler } from '../hooks/useBirthdayNotifications';
+import { usePushRegistration } from '../hooks/usePushNotifications';
 import type { Player } from '../types';
 
 const NO_PLAYERS: Player[] = [];
 
 function BirthdayNotifier() {
-  const { data } = usePlayersQuery({ size: 100 });
+  // All teams: the browser reminder covers every registered birthday.
+  const { data } = usePlayersQuery({ size: 500 });
   useBirthdayScheduler(data?.content ?? NO_PLAYERS);
+  usePushRegistration();
   return null;
 }
 

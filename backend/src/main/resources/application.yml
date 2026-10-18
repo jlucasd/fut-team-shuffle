@@ -5,6 +5,18 @@ spring:
   profiles:
     active: dev
 
+app:
+  firebase:
+    # Service-account JSON from Firebase (raw or base64). Empty = push disabled.
+    credentials: ${FIREBASE_CREDENTIALS:}
+
+  notifications:
+    # Daily birthday push (second minute hour day month weekday).
+    cron: ${BIRTHDAY_CRON:0 0 9 * * *}
+    zone: ${BIRTHDAY_ZONE:America/Sao_Paulo}
+    # Shared secret for POST /api/notificacoes/aniversarios/disparar (external cron). Empty = disabled.
+    cron-secret: ${CRON_SECRET:}
+
 ---
 # Development Profile
 spring:

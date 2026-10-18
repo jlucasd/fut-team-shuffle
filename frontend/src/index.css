@@ -7,6 +7,9 @@
 @layer base {
   body {
     @apply bg-gavioes-black text-gavioes-white font-body;
+    /* Keep content clear of the status/navigation bars in the Android app (0 on the web). */
+    padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+    padding-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   }
 
   h1, h2, h3, h4, h5, h6 {

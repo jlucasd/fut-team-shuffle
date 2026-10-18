@@ -2,6 +2,7 @@ import api from '../lib/api';
 import type { Player, PlayerCreateRequest, PlayerUpdateRequest, PageResponse, Position } from '../types';
 
 export interface PlayerFilters {
+  equipeId?: number | null;
   posicao?: Position | '';
   ativo?: boolean | '';
   page?: number;
@@ -11,6 +12,7 @@ export interface PlayerFilters {
 export async function fetchPlayers(filters: PlayerFilters = {}): Promise<PageResponse<Player>> {
   const params: Record<string, string | number | boolean> = {};
 
+  if (filters.equipeId) params.equipeId = filters.equipeId;
   if (filters.posicao) params.posicao = filters.posicao;
   if (filters.ativo !== undefined && filters.ativo !== '') params.ativo = filters.ativo;
   if (filters.page !== undefined) params.page = filters.page;

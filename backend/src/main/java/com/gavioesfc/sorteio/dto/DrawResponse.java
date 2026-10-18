@@ -11,5 +11,6 @@ public record DrawResponse(
         List<PlayerResponse> reservas,
         Double mediaAmarelo,
         Double mediaPreto,
-        Boolean equilibrado
+        Boolean equilibrado,
+        Long equipeId
 ) {}

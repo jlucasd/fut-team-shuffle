@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { usePlayersQuery, useUpdatePlayer } from '../hooks/usePlayersQuery';
 import { useBirthdayNotifications } from '../hooks/useBirthdayNotifications';
+import { usePushNotifications } from '../hooks/usePushNotifications';
+import { useCurrentEquipe } from '../hooks/useEquipes';
+import { sendTestNotification } from '../services/notificacaoService';
 import type { Player } from '../types';
 import {
   daysUntilBirthday,
@@ -18,9 +21,100 @@ function daysLabel(iso: string): string {
   return `em ${days} dias`;
 }
 
-export function AniversariantesPage() {
-  const { data, isLoading, isError } = usePlayersQuery({ size: 100 });
+/** Browser notifications (web) — only fire while the site is open. */
+function WebNotificationControl() {
   const { supported, permission, enabled, enable, disable } = useBirthdayNotifications();
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      {!supported && (
+        <span className="text-xs text-gavioes-white/50">
+          Notificações não são suportadas neste navegador.
+        </span>
+      )}
+      {supported && permission === 'denied' && (
+        <span className="text-xs text-red-400 max-w-[240px] text-right">
+          Notificações bloqueadas. Habilite nas configurações do navegador.
+        </span>
+      )}
+      {supported && permission !== 'denied' && (
+        enabled ? (
+          <button
+            onClick={disable}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-yellow text-gavioes-black hover:bg-gavioes-yellow/90 transition-colors"
+          >
+            🔔 Notificações ativadas
+          </button>
+        ) : (
+          <button
+            onClick={enable}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-dark-gray border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10 transition-colors"
+          >
+            🔕 Ativar notificações
+          </button>
+        )
+      )}
+      <span className="text-xs text-gavioes-white/40 max-w-[240px] text-right">
+        Avisamos um dia antes de cada aniversário.
+      </span>
+    </div>
+  );
+}
+
+/** Push notifications (Android app) — sent by the server even with the app closed. */
+function PushNotificationControl() {
+  const { permission, enable } = usePushNotifications();
+  const [testMessage, setTestMessage] = useState<string | null>(null);
+
+  async function handleTest() {
+    setTestMessage(null);
+    try {
+      const { enviados } = await sendTestNotification();
+      setTestMessage(enviados > 0 ? 'Notificação de teste enviada!' : 'Nenhum celular recebeu o teste.');
+    } catch (error) {
+      const data = (error as { response?: { data?: { mensagem?: string } } })?.response?.data;
+      setTestMessage(data?.mensagem ?? 'Não foi possível enviar o teste.');
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      {permission === 'granted' ? (
+        <div className="flex gap-2">
+          <span className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-yellow text-gavioes-black">
+            🔔 Push ativado
+          </span>
+          <button
+            onClick={handleTest}
+            className="px-3 py-2 rounded-lg text-sm border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10"
+          >
+            Testar
+          </button>
+        </div>
+      ) : permission === 'denied' ? (
+        <span className="text-xs text-red-400 max-w-[240px] text-right">
+          Notificações bloqueadas. Habilite nos Ajustes do celular para este app.
+        </span>
+      ) : (
+        <button
+          onClick={enable}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-dark-gray border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10 transition-colors"
+        >
+          🔕 Ativar notificações
+        </button>
+      )}
+      {testMessage && <span className="text-xs text-gavioes-white/70">{testMessage}</span>}
+      <span className="text-xs text-gavioes-white/40 max-w-[240px] text-right">
+        Todo dia às 9h avisamos quem faz aniversário hoje e amanhã, mesmo com o app fechado.
+      </span>
+    </div>
+  );
+}
+
+export function AniversariantesPage() {
+  const { equipe, equipeId } = useCurrentEquipe();
+  const { data, isLoading, isError } = usePlayersQuery({ equipeId, size: 500 });
+  const { isNativeApp } = usePushNotifications();
   const updateMutation = useUpdatePlayer();
 
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -77,43 +171,11 @@ export function AniversariantesPage() {
         <div>
           <h1 className="text-3xl font-title text-gavioes-yellow">Aniversariantes</h1>
           <p className="text-sm text-gavioes-white/60 mt-1">
-            Datas de nascimento dos sócios do Gaviões FC
+            Datas de nascimento dos sócios{equipe ? ` — ${equipe.nome}` : ''}
           </p>
         </div>
 
-        {/* Notification control */}
-        <div className="flex flex-col items-end gap-1">
-          {!supported && (
-            <span className="text-xs text-gavioes-white/50">
-              Notificações não são suportadas neste navegador.
-            </span>
-          )}
-          {supported && permission === 'denied' && (
-            <span className="text-xs text-red-400 max-w-[240px] text-right">
-              Notificações bloqueadas. Habilite nas configurações do navegador.
-            </span>
-          )}
-          {supported && permission !== 'denied' && (
-            enabled ? (
-              <button
-                onClick={disable}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-yellow text-gavioes-black hover:bg-gavioes-yellow/90 transition-colors"
-              >
-                🔔 Notificações ativadas
-              </button>
-            ) : (
-              <button
-                onClick={enable}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-dark-gray border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10 transition-colors"
-              >
-                🔕 Ativar notificações
-              </button>
-            )
-          )}
-          <span className="text-xs text-gavioes-white/40 max-w-[240px] text-right">
-            Avisamos um dia antes de cada aniversário.
-          </span>
-        </div>
+        {isNativeApp ? <PushNotificationControl /> : <WebNotificationControl />}
       </div>
 
       {isLoading && (

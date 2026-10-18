@@ -10,6 +10,25 @@ O Gaviões FC Sorteio é uma aplicação full-stack que permite:
 - Edição manual pós-sorteio com recálculo de médias em tempo real
 - Geração de imagem PNG para compartilhamento via WhatsApp
 - Histórico de sorteios anteriores
+- Vários times (clubes), cada um com seus jogadores, sorteios e aniversariantes
+- Aniversariantes com notificação no navegador e push nos apps Android e iOS (Firebase)
+
+> App Android e notificações push: veja [docs/APP_ANDROID_FIREBASE.md](docs/APP_ANDROID_FIREBASE.md).
+> App iOS (iPhone): veja [docs/APP_IOS.md](docs/APP_IOS.md).
+
+## Vários times
+
+Jogadores e sorteios pertencem a um time (`equipes`). O time ativo é escolhido no seletor da
+barra de navegação e os times são gerenciados na página **Times**.
+
+Migração dos dados existentes (automática e não destrutiva): o Hibernate (`ddl-auto: update`)
+apenas cria a tabela `equipes` e a coluna `equipe_id` (nula) em `players` e `draws`; na
+inicialização, o `EquipeBackfill` cria o time **Gaviões FC** e associa a ele todo registro que
+ainda não tem time. Nada é apagado ou sobrescrito, e rodar de novo não muda nada.
+Recomendado mesmo assim: faça um backup/branch do banco no Neon antes do primeiro deploy.
+
+Requisições sem `equipeId` continuam funcionando (usam o time padrão), então versões antigas do
+frontend seguem compatíveis durante o deploy.
 
 ## Stack Tecnológica
 
@@ -202,6 +221,10 @@ O algoritmo de balanceamento segue estes passos:
 | `JWT_EXPIRATION` | Tempo de expiração do token (ms) | `86400000` |
 | `CORS_ORIGINS` | Origens permitidas (CORS) | `http://localhost:5173` |
 | `SERVER_PORT` | Porta do servidor | `8080` |
+| `FIREBASE_CREDENTIALS` | JSON da conta de serviço do Firebase (cru ou base64); vazio desliga o push | — |
+| `CRON_SECRET` | Segredo do disparo externo `POST /api/notificacoes/aniversarios/disparar` | — |
+| `BIRTHDAY_CRON` | Horário do push diário de aniversários | `0 0 9 * * *` |
+| `BIRTHDAY_ZONE` | Fuso do push diário | `America/Sao_Paulo` |
 
 ### Frontend
 

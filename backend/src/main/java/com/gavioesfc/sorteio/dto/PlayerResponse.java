@@ -10,5 +10,7 @@ public record PlayerResponse(
         Position posicao,
         Integer nivel,
         Boolean ativo,
-        LocalDate dataNascimento
+        LocalDate dataNascimento,
+        Long equipeId,
+        String equipeNome
 ) {}

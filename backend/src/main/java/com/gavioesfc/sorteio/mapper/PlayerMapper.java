@@ -14,12 +14,16 @@ public interface PlayerMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "equipe", ignore = true)
     Player toEntity(PlayerCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "equipe", ignore = true)
     void updateEntity(PlayerUpdateRequest request, @MappingTarget Player player);
 
+    @Mapping(target = "equipeId", source = "equipe.id")
+    @Mapping(target = "equipeNome", source = "equipe.nome")
     PlayerResponse toResponse(Player player);
 }

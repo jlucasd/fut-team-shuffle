@@ -23,5 +23,12 @@ public record PlayerUpdateRequest(
         @NotNull(message = "Status ativo é obrigatório")
         Boolean ativo,
 
-        LocalDate dataNascimento
-) {}
+        LocalDate dataNascimento,
+
+        /** Optional: when absent the player keeps its current equipe. */
+        Long equipeId
+) {
+    public PlayerUpdateRequest(String nome, Position posicao, Integer nivel, Boolean ativo, LocalDate dataNascimento) {
+        this(nome, posicao, nivel, ativo, dataNascimento, null);
+    }
+}

@@ -5,9 +5,11 @@ import { useDrawStore } from '../stores/drawStore';
 import { PlayerCard } from '../components/PlayerCard';
 import { FootballField } from '../components/FootballField';
 import { ShareImagePanel } from '../components/ShareImagePanel';
+import { useCurrentEquipe } from '../hooks/useEquipes';
 
 export function DrawPage() {
-  const { data: playersData, isLoading } = usePlayersQuery({ ativo: true, size: 100 });
+  const { equipeId } = useCurrentEquipe();
+  const { data: playersData, isLoading } = usePlayersQuery({ equipeId, ativo: true, size: 100 });
   const drawMutation = useDrawMutation();
   const updateTeamsMutation = useUpdateTeamsMutation();
 
@@ -64,7 +66,7 @@ export function DrawPage() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
-      const result = await drawMutation.mutateAsync({ jogadorIds: selectedPlayerIds });
+      const result = await drawMutation.mutateAsync({ jogadorIds: selectedPlayerIds, equipeId });
       setDraw(result);
       setShowResults(true);
     } catch {
@@ -81,7 +83,7 @@ export function DrawPage() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
-      const result = await drawMutation.mutateAsync({ jogadorIds: selectedPlayerIds });
+      const result = await drawMutation.mutateAsync({ jogadorIds: selectedPlayerIds, equipeId });
       setDraw(result);
       setShowResults(true);
     } catch {

@@ -8,10 +8,12 @@ import com.gavioesfc.sorteio.exception.BusinessRuleException;
 import com.gavioesfc.sorteio.exception.ResourceNotFoundException;
 import com.gavioesfc.sorteio.mapper.DrawMapper;
 import com.gavioesfc.sorteio.model.entity.Draw;
+import com.gavioesfc.sorteio.model.entity.Equipe;
 import com.gavioesfc.sorteio.model.entity.Player;
 import com.gavioesfc.sorteio.model.entity.TeamAssignment;
 import com.gavioesfc.sorteio.model.enums.Team;
 import com.gavioesfc.sorteio.repository.DrawRepository;
+import com.gavioesfc.sorteio.repository.EquipeRepository;
 import com.gavioesfc.sorteio.repository.PlayerRepository;
 import com.gavioesfc.sorteio.repository.TeamAssignmentRepository;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DrawService {
@@ -33,17 +37,20 @@ public class DrawService {
     private final TeamAssignmentRepository teamAssignmentRepository;
     private final DrawAlgorithm drawAlgorithm;
     private final DrawMapper drawMapper;
+    private final EquipeRepository equipeRepository;
 
     public DrawService(DrawRepository drawRepository,
                        PlayerRepository playerRepository,
                        TeamAssignmentRepository teamAssignmentRepository,
                        DrawAlgorithm drawAlgorithm,
-                       DrawMapper drawMapper) {
+                       DrawMapper drawMapper,
+                       EquipeRepository equipeRepository) {
         this.drawRepository = drawRepository;
         this.playerRepository = playerRepository;
         this.teamAssignmentRepository = teamAssignmentRepository;
         this.drawAlgorithm = drawAlgorithm;
         this.drawMapper = drawMapper;
+        this.equipeRepository = equipeRepository;
     }
 
     @Transactional
@@ -68,6 +75,8 @@ public class DrawService {
             throw new BusinessRuleException("Jogadores inativos não podem participar do sorteio");
         }
 
+        Equipe equipe = resolveEquipe(request.equipeId(), players);
+
         // Execute algorithm
         DrawResult result = drawAlgorithm.execute(players);
 
@@ -76,6 +85,7 @@ public class DrawService {
                 .mediaAmarelo(result.getMediaAmarelo())
                 .mediaPreto(result.getMediaPreto())
                 .equilibrado(result.getEquilibrado())
+                .equipe(equipe)
                 .build();
         Draw savedDraw = drawRepository.save(draw);
 
@@ -114,9 +124,11 @@ public class DrawService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<DrawResponse> getHistory(int page, int size) {
+    public PageResponse<DrawResponse> getHistory(Long equipeId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Draw> drawPage = drawRepository.findAllByOrderByDataHoraDesc(pageable);
+        Page<Draw> drawPage = equipeId != null
+                ? drawRepository.findByEquipeIdOrderByDataHoraDesc(equipeId, pageable)
+                : drawRepository.findAllByOrderByDataHoraDesc(pageable);
 
         List<DrawResponse> content = drawPage.getContent().stream()
                 .map(draw -> {
@@ -208,6 +220,29 @@ public class DrawService {
         List<TeamAssignment> savedAssignments = teamAssignmentRepository.saveAll(assignments);
 
         return drawMapper.toResponse(draw, savedAssignments);
+    }
+
+    /**
+     * A draw belongs to one equipe: the requested one (every player must be in
+     * it) or, when none is requested, the equipe shared by all players.
+     */
+    private Equipe resolveEquipe(Long equipeId, List<Player> players) {
+        Set<Long> playerEquipeIds = players.stream()
+                .map(p -> p.getEquipe() != null ? p.getEquipe().getId() : null)
+                .collect(Collectors.toSet());
+
+        if (equipeId != null) {
+            if (!playerEquipeIds.equals(Set.of(equipeId))) {
+                throw new BusinessRuleException("Todos os jogadores do sorteio devem pertencer ao time selecionado");
+            }
+            return equipeRepository.findById(equipeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Time não encontrado"));
+        }
+
+        if (playerEquipeIds.size() > 1) {
+            throw new BusinessRuleException("Não é possível sortear jogadores de times diferentes");
+        }
+        return players.get(0).getEquipe();
     }
 
     private double calculateAverage(List<Player> players) {
