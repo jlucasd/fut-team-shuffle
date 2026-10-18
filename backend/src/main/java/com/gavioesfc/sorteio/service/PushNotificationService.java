@@ -64,6 +64,12 @@ public class PushNotificationService {
                     .setApnsConfig(ApnsConfig.builder()
                             .setAps(Aps.builder().setSound("default").build())
                             .build())
+                    .setWebpushConfig(WebpushConfig.builder()
+                            .putHeader("Urgency", "high")
+                            .setNotification(WebpushNotification.builder()
+                                    .setIcon("/icons/icon-192.png")
+                                    .build())
+                            .build())
                     .build();
             try {
                 BatchResponse response = messaging.sendEachForMulticast(message);

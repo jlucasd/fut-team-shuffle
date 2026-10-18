@@ -92,6 +92,4 @@ Abra o app → login → **Aniversariantes → Ativar notificações** → Permi
 ## Alternativa sem custo: instalar como site (PWA)
 
 Desde o iOS 16.4, um site adicionado à Tela de Início também pode receber push, sem Mac e sem
-os US$ 99/ano. Isso ainda não está implementado aqui: precisaria de um manifest, de um service
-worker e do Firebase Web Push no frontend. É uma boa opção se o objetivo for só receber os
-avisos no seu celular.
+os US$ 99/ano. Veja [PWA_IPHONE.md](PWA_IPHONE.md).

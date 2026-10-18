@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { usePlayersQuery, useUpdatePlayer } from '../hooks/usePlayersQuery';
 import { useBirthdayNotifications } from '../hooks/useBirthdayNotifications';
-import { usePushNotifications } from '../hooks/usePushNotifications';
+import { usePushNotifications, useWebPush } from '../hooks/usePushNotifications';
+import { webPushConfigured } from '../lib/webPush';
 import { useCurrentEquipe } from '../hooks/useEquipes';
 import { sendTestNotification } from '../services/notificacaoService';
 import type { Player } from '../types';
@@ -61,9 +62,8 @@ function WebNotificationControl() {
   );
 }
 
-/** Push notifications (Android app) — sent by the server even with the app closed. */
-function PushNotificationControl() {
-  const { permission, enable } = usePushNotifications();
+/** "Testar" button: asks the server to push to every registered device. */
+function useTestNotification() {
   const [testMessage, setTestMessage] = useState<string | null>(null);
 
   async function handleTest() {
@@ -76,6 +76,16 @@ function PushNotificationControl() {
       setTestMessage(data?.mensagem ?? 'Não foi possível enviar o teste.');
     }
   }
+
+  return { testMessage, handleTest };
+}
+
+const DAILY_PUSH_HINT = 'Todo dia às 9h avisamos quem faz aniversário hoje e amanhã, mesmo com o app fechado.';
+
+/** Push notifications (Android/iOS app) — sent by the server even with the app closed. */
+function PushNotificationControl() {
+  const { permission, enable } = usePushNotifications();
+  const { testMessage, handleTest } = useTestNotification();
 
   return (
     <div className="flex flex-col items-end gap-1">
@@ -104,9 +114,82 @@ function PushNotificationControl() {
         </button>
       )}
       {testMessage && <span className="text-xs text-gavioes-white/70">{testMessage}</span>}
-      <span className="text-xs text-gavioes-white/40 max-w-[240px] text-right">
-        Todo dia às 9h avisamos quem faz aniversário hoje e amanhã, mesmo com o app fechado.
-      </span>
+      <span className="text-xs text-gavioes-white/40 max-w-[240px] text-right">{DAILY_PUSH_HINT}</span>
+    </div>
+  );
+}
+
+/** Web push (browser / PWA): server-sent like the app, also on iPhone via the Home Screen. */
+function WebPushControl() {
+  const { state, enable } = useWebPush();
+  const { disable: disableLocalReminders } = useBirthdayNotifications();
+  const { testMessage, handleTest } = useTestNotification();
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleEnable() {
+    setError(null);
+    try {
+      if (await enable()) {
+        // The server push replaces the old in-browser reminder (avoids duplicates)
+        disableLocalReminders();
+      }
+    } catch {
+      setError('Não foi possível ativar. Tente novamente.');
+    }
+  }
+
+  if (state === 'ios-needs-home-screen') {
+    return (
+      <div className="max-w-[300px] rounded-lg border border-gavioes-yellow/40 bg-gavioes-yellow/10 p-3 text-sm">
+        <p className="font-medium text-gavioes-yellow mb-1">📲 Receber avisos no iPhone</p>
+        <ol className="list-decimal pl-4 space-y-0.5 text-gavioes-white/80">
+          <li>No Safari, toque em <strong>Compartilhar</strong> (quadrado com seta ↑)</li>
+          <li>Escolha <strong>Adicionar à Tela de Início</strong></li>
+          <li>Abra o app pelo ícone e volte aqui para ativar</li>
+        </ol>
+        <p className="text-xs text-gavioes-white/50 mt-2">Requer iOS 16.4 ou superior.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      {state === 'checking' && <span className="text-xs text-gavioes-white/50">Verificando…</span>}
+      {state === 'unsupported' && (
+        <span className="text-xs text-gavioes-white/50 max-w-[240px] text-right">
+          Este navegador não suporta notificações push.
+        </span>
+      )}
+      {state === 'denied' && (
+        <span className="text-xs text-red-400 max-w-[240px] text-right">
+          Notificações bloqueadas. Habilite nas configurações do navegador/celular.
+        </span>
+      )}
+      {state === 'prompt' && (
+        <button
+          onClick={handleEnable}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-dark-gray border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10 transition-colors"
+        >
+          🔕 Ativar notificações
+        </button>
+      )}
+      {state === 'enabled' && (
+        <div className="flex gap-2">
+          <span className="px-4 py-2 rounded-lg text-sm font-medium bg-gavioes-yellow text-gavioes-black">
+            🔔 Push ativado
+          </span>
+          <button
+            onClick={handleTest}
+            className="px-3 py-2 rounded-lg text-sm border border-gavioes-white/30 text-gavioes-white hover:bg-gavioes-white/10"
+          >
+            Testar
+          </button>
+        </div>
+      )}
+      {(error || testMessage) && <span className="text-xs text-gavioes-white/70">{error ?? testMessage}</span>}
+      {state !== 'unsupported' && (
+        <span className="text-xs text-gavioes-white/40 max-w-[240px] text-right">{DAILY_PUSH_HINT}</span>
+      )}
     </div>
   );
 }
@@ -175,7 +258,13 @@ export function AniversariantesPage() {
           </p>
         </div>
 
-        {isNativeApp ? <PushNotificationControl /> : <WebNotificationControl />}
+        {isNativeApp ? (
+          <PushNotificationControl />
+        ) : webPushConfigured ? (
+          <WebPushControl />
+        ) : (
+          <WebNotificationControl />
+        )}
       </div>
 
       {isLoading && (

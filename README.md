@@ -15,6 +15,7 @@ O Gaviões FC Sorteio é uma aplicação full-stack que permite:
 
 > App Android e notificações push: veja [docs/APP_ANDROID_FIREBASE.md](docs/APP_ANDROID_FIREBASE.md).
 > App iOS (iPhone): veja [docs/APP_IOS.md](docs/APP_IOS.md).
+> iPhone sem App Store (site na Tela de Início com push): veja [docs/PWA_IPHONE.md](docs/PWA_IPHONE.md).
 
 ## Vários times
 
@@ -231,6 +232,8 @@ O algoritmo de balanceamento segue estes passos:
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
 | `VITE_API_BASE_URL` | URL base da API | `http://localhost:8080` |
+| `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID` | Config do app Web do Firebase (web push / PWA) | — |
+| `VITE_FIREBASE_VAPID_KEY` | Chave pública "Web Push" do Firebase | — |
 
 ## Licença
 
