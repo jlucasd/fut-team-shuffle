@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { NavBar } from './NavBar';
 import { usePlayersQuery } from '../hooks/usePlayersQuery';
@@ -21,7 +22,15 @@ export function Layout() {
       <BirthdayNotifier />
       <NavBar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
+        <Suspense
+          fallback={
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-gavioes-yellow border-t-transparent rounded-full animate-spin" />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

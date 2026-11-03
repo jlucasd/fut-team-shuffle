@@ -1,0 +1,50 @@
+# Evita o cold start do backend no Render (plano Free hiberna após 15 min sem
+# requisições e leva ~2 min para acordar) e garante o aviso diário de aniversários.
+#
+# O ping usa /api/health, que NÃO consulta o banco: o Neon continua podendo
+# suspender sozinho (retoma em < 1 s) sem gastar a cota de horas do plano Free.
+name: Backend keep-alive
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # a cada 5 min (o GitHub pode atrasar execuções agendadas)
+    - cron: '5 12 * * *'    # 09:05 (BRT): disparo diário dos aniversários
+  workflow_dispatch:
+
+env:
+  BACKEND_URL: https://fut-team-shuffle.onrender.com
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /api/health
+        run: |
+          # --max-time alto: se o serviço já tiver dormido, este ping o acorda
+          status=$(curl -sS -o response.json -w '%{http_code}' --max-time 240 \
+            --retry 2 --retry-delay 10 "$BACKEND_URL/api/health")
+          echo "HTTP $status"
+          cat response.json
+          if [ "$status" -ge 400 ]; then exit 1; fi
+
+  aniversarios:
+    # Só no agendamento das 09:05; o envio é idempotente (uma vez por dia)
+    if: github.event.schedule == '5 12 * * *'
+    needs: ping
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Disparar notificações de aniversário
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "Secret CRON_SECRET não configurado; pulando (o job interno das 9h continua ativo)."
+            exit 0
+          fi
+          status=$(curl -sS -o response.json -w '%{http_code}' --max-time 120 -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" "$BACKEND_URL/api/notificacoes/aniversarios/disparar")
+          echo "HTTP $status"
+          cat response.json
+          if [ "$status" -ge 400 ]; then exit 1; fi

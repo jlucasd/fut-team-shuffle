@@ -1,9 +1,15 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import api from '../lib/api';
+import { loadHomePage } from './lazyPages';
 
 export function LoginPage() {
+  // Fetch the next screen while the user types
+  useEffect(() => {
+    loadHomePage();
+  }, []);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

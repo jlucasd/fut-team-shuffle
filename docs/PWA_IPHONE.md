@@ -42,8 +42,8 @@ aba aberta.
 
 Precisa do mesmo `FIREBASE_CREDENTIALS` do guia do Android
 ([APP_ANDROID_FIREBASE.md](APP_ANDROID_FIREBASE.md)), e o `CORS_ORIGINS` precisa conter o
-domínio da Vercel (já contém, se o site funciona hoje). Para o push sair às 9h mesmo com o
-Render dormindo, configure o cron externo descrito no mesmo guia.
+domínio da Vercel (já contém, se o site funciona hoje). O keep-alive do GitHub Actions mantém o
+Render acordado para o push das 9h (veja o mesmo guia).
 
 ## 4. Instalar no iPhone
 
@@ -67,5 +67,5 @@ Safari e não pelo ícone; volte ao passo 4.
 | "Este navegador não suporta notificações push" | Atualize o iPhone para iOS 16.4 ou superior |
 | "Notificações bloqueadas" | Ajustes do iPhone → Notificações → Gaviões FC → Permitir Notificações |
 | "Testar" diz "Firebase não configurado no servidor" | Falta `FIREBASE_CREDENTIALS` no Render |
-| Teste chega, mas o aviso das 9h não | O Render estava dormindo: configure o cron externo |
+| Teste chega, mas o aviso das 9h não | Veja em GitHub → Actions se o "Backend keep-alive" está rodando (ele mantém o Render acordado) |
 | Parou de receber depois de muito tempo sem abrir | Abra o app pelo ícone uma vez (o token é renovado ao abrir) |

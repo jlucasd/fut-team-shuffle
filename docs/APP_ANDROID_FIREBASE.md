@@ -37,19 +37,23 @@ Variáveis de ambiente novas:
 
 No log de inicialização deve aparecer `Firebase inicializado: notificações push habilitadas.`
 
-### Render free tier dorme → use um cron externo
+### Render free tier dorme → keep-alive no GitHub Actions
 
-O job interno (`@Scheduled`) só roda se o servidor estiver acordado às 9h. No plano gratuito do
-Render o serviço hiberna, então configure um cron externo (ex.: [cron-job.org](https://cron-job.org),
-gratuito) para chamar diariamente, por volta das 9h05:
+O workflow [`.github/workflows/keepalive.yml`](../.github/workflows/keepalive.yml) pinga
+`/api/health` a cada 5 minutos, então o backend não hiberna mais, e às 09:05 chama o disparo
+diário de aniversários. Para esse disparo funcionar, cadastre o mesmo `CRON_SECRET` do Render
+como secret do repositório no GitHub (Settings → Secrets and variables → Actions). Sem o secret,
+o passo é pulado e vale o job interno das 9h, que funciona porque o servidor fica acordado.
+
+O disparo também pode ser feito manualmente:
 
 ```bash
-curl -X POST https://SEU-BACKEND.onrender.com/api/notificacoes/aniversarios/disparar -H "X-Cron-Secret: SEU_CRON_SECRET"
+curl -X POST https://fut-team-shuffle.onrender.com/api/notificacoes/aniversarios/disparar -H "X-Cron-Secret: SEU_CRON_SECRET"
 ```
 
-O envio é idempotente: cada dia é notificado **uma única vez**, mesmo que o job interno e o
-cron externo rodem os dois. A resposta mostra o resultado (`ENVIADO`, `JA_ENVIADO`,
-`SEM_ANIVERSARIANTES`, `SEM_DISPOSITIVOS` ou `FIREBASE_NAO_CONFIGURADO`).
+O envio é idempotente: cada dia é notificado **uma única vez**. A resposta mostra o resultado
+(`ENVIADO`, `JA_ENVIADO`, `SEM_ANIVERSARIANTES`, `SEM_DISPOSITIVOS` ou
+`FIREBASE_NAO_CONFIGURADO`).
 
 ## 3. Gerar o APK
 
