@@ -2,6 +2,7 @@ package com.gavioesfc.sorteio.controller;
 
 import com.gavioesfc.sorteio.dto.AuthResponse;
 import com.gavioesfc.sorteio.dto.LoginRequest;
+import com.gavioesfc.sorteio.security.AdminCredentials;
 import com.gavioesfc.sorteio.security.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private static final String HARDCODED_USERNAME = "admin";
-    private static final String HARDCODED_PASSWORD = "admin123";
-
     private final JwtUtil jwtUtil;
+    private final AdminCredentials adminCredentials;
 
-    public AuthController(JwtUtil jwtUtil) {
+    public AuthController(JwtUtil jwtUtil, AdminCredentials adminCredentials) {
         this.jwtUtil = jwtUtil;
+        this.adminCredentials = adminCredentials;
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        if (!HARDCODED_USERNAME.equals(request.username()) || !HARDCODED_PASSWORD.equals(request.password())) {
+        if (!adminCredentials.matches(request.username(), request.password())) {
             throw new BadCredentialsException("Credenciais inválidas");
         }
 

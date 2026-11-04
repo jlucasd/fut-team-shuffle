@@ -90,9 +90,12 @@ Endpoints úteis:
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - H2 Console: http://localhost:8080/h2-console
 
-Credenciais padrão (v1):
+Credenciais **apenas do ambiente local** (perfil `dev` e Docker Compose):
 - Usuário: `admin`
 - Senha: `admin123`
+
+Em produção não há senha padrão: defina `ADMIN_PASSWORD` (ou `ADMIN_PASSWORD_HASH`). Sem
+nenhuma das duas, todo login é recusado.
 
 ### Frontend (Desenvolvimento)
 
@@ -222,6 +225,9 @@ O algoritmo de balanceamento segue estes passos:
 | `JWT_EXPIRATION` | Tempo de expiração do token (ms) | `86400000` |
 | `CORS_ORIGINS` | Origens permitidas (CORS) | `http://localhost:5173` |
 | `SERVER_PORT` | Porta do servidor | `8080` |
+| `ADMIN_USERNAME` | Usuário do login | `admin` |
+| `ADMIN_PASSWORD` | Senha do login (produção: obrigatória se não houver hash) | — (`admin123` só no perfil dev) |
+| `ADMIN_PASSWORD_HASH` | Alternativa: hash BCrypt da senha (tem prioridade sobre `ADMIN_PASSWORD`) | — |
 | `FIREBASE_CREDENTIALS` | JSON da conta de serviço do Firebase (cru ou base64); vazio desliga o push | — |
 | `CRON_SECRET` | Segredo do disparo externo `POST /api/notificacoes/aniversarios/disparar` | — |
 | `BIRTHDAY_CRON` | Horário do push diário de aniversários | `0 0 9 * * *` |

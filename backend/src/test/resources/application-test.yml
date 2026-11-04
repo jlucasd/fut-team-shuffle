@@ -21,6 +21,11 @@ spring:
     show-sql: false
 
 app:
+  auth:
+    username: admin
+    # BCrypt of "senha-de-teste"
+    password-hash: "$2a$10$dWGv3iiMwqA0thuQP4A97u6KqKPdvg/N3l6NEmegNvCjZDJToRi7u"
+
   jwt:
     secret: test-secret-key-gavioes-fc-sorteio-2024-minimum-256-bits-long-key!!
     expiration: 86400000

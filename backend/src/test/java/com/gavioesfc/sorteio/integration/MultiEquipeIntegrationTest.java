@@ -155,6 +155,20 @@ class MultiEquipeIntegrationTest {
     }
 
     @Test
+    void loginUsesConfiguredCredentialsNotTheOldDefault() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"admin\",\"password\":\"admin123\"}"))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"admin\",\"password\":\"senha-de-teste\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty());
+    }
+
+    @Test
     void cronTriggerRequiresSecret() throws Exception {
         mockMvc.perform(post("/api/notificacoes/aniversarios/disparar"))
                 .andExpect(status().isForbidden());

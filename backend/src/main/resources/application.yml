@@ -6,6 +6,12 @@ spring:
     active: dev
 
 app:
+  auth:
+    username: ${ADMIN_USERNAME:admin}
+    # Set ONE of them in production. Neither set = every login is rejected.
+    password: ${ADMIN_PASSWORD:}
+    password-hash: ${ADMIN_PASSWORD_HASH:}
+
   firebase:
     # Service-account JSON from Firebase (raw or base64). Empty = push disabled.
     credentials: ${FIREBASE_CREDENTIALS:}
@@ -50,6 +56,10 @@ server:
   port: 8080
 
 app:
+  auth:
+    # Local development only
+    password: ${ADMIN_PASSWORD:admin123}
+
   jwt:
     secret: dev-secret-key-gavioes-fc-sorteio-2024-minimum-256-bits-long-key
     expiration: 86400000
