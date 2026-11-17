@@ -2,7 +2,7 @@
 
 Desde o **iOS 16.4**, um site adicionado à **Tela de Início** abre como um app (sem a barra do
 Safari) e recebe notificações push. Não precisa de Mac, de conta paga da Apple nem de TestFlight.
-O push diário de aniversários (9h, "hoje" e "amanhã") é o mesmo do Android e do iOS nativo.
+O push diário de aniversários (7h da manhã, "hoje" e "amanhã") é o mesmo do Android e do iOS nativo.
 
 ```
 iPhone (PWA na Tela de Início) ──token Web Push──▶ Backend ──Firebase──▶ Apple Web Push ──▶ iPhone
@@ -42,8 +42,8 @@ aba aberta.
 
 Precisa do mesmo `FIREBASE_CREDENTIALS` do guia do Android
 ([APP_ANDROID_FIREBASE.md](APP_ANDROID_FIREBASE.md)), e o `CORS_ORIGINS` precisa conter o
-domínio da Vercel (já contém, se o site funciona hoje). O keep-alive do GitHub Actions mantém o
-Render acordado para o push das 9h (veja o mesmo guia).
+domínio da Vercel (já contém, se o site funciona hoje). O keep-alive do GitHub Actions acorda o
+Render de manhã para o push das 7h (veja o mesmo guia).
 
 ## 4. Instalar no iPhone
 
@@ -67,5 +67,5 @@ Safari e não pelo ícone; volte ao passo 4.
 | "Este navegador não suporta notificações push" | Atualize o iPhone para iOS 16.4 ou superior |
 | "Notificações bloqueadas" | Ajustes do iPhone → Notificações → Gaviões FC → Permitir Notificações |
 | "Testar" diz "Firebase não configurado no servidor" | Falta `FIREBASE_CREDENTIALS` no Render |
-| Teste chega, mas o aviso das 9h não | Veja em GitHub → Actions se o "Backend keep-alive" está rodando (ele mantém o Render acordado) |
+| Teste chega, mas o aviso das 7h não | Veja em GitHub → Actions se o "Backend keep-alive" está rodando (ele acorda o Render de manhã) |
 | Parou de receber depois de muito tempo sem abrir | Abra o app pelo ícone uma vez (o token é renovado ao abrir) |

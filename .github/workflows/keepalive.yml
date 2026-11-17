@@ -1,5 +1,9 @@
 # Evita o cold start do backend no Render (plano Free hiberna após 15 min sem
-# requisições e leva ~2 min para acordar) e garante o aviso diário de aniversários.
+# requisições e leva ~1-2 min para acordar) e garante o aviso diário de aniversários.
+#
+# O backend verifica a cada 5 min (e logo após iniciar) se o aviso do dia já saiu a
+# partir das 07:00 (BRT); basta acordá-lo de manhã. O GitHub costuma atrasar ou pular
+# agendamentos frequentes, por isso a manhã tem três horários dedicados.
 #
 # O ping usa /api/health, que NÃO consulta o banco: o Neon continua podendo
 # suspender sozinho (retoma em < 1 s) sem gastar a cota de horas do plano Free.
@@ -7,8 +11,8 @@ name: Backend keep-alive
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # a cada 5 min (o GitHub pode atrasar execuções agendadas)
-    - cron: '5 12 * * *'    # 09:05 (BRT): disparo diário dos aniversários
+    - cron: '*/5 * * * *'     # a cada 5 min (o GitHub pode atrasar execuções agendadas)
+    - cron: '0,20,40 10 * * *' # 07:00, 07:20 e 07:40 (BRT): acorda o backend para o aviso de aniversários
   workflow_dispatch:
 
 env:
@@ -29,8 +33,8 @@ jobs:
           if [ "$status" -ge 400 ]; then exit 1; fi
 
   aniversarios:
-    # Só no agendamento das 09:05; o envio é idempotente (uma vez por dia)
-    if: github.event.schedule == '5 12 * * *'
+    # Só nos horários da manhã; o envio é idempotente (uma vez por dia)
+    if: github.event.schedule == '0,20,40 10 * * *' || github.event_name == 'workflow_dispatch'
     needs: ping
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -40,7 +44,7 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           if [ -z "$CRON_SECRET" ]; then
-            echo "Secret CRON_SECRET não configurado; pulando (o job interno das 9h continua ativo)."
+            echo "Secret CRON_SECRET não configurado; pulando (a verificação interna do backend envia assim que ele acorda)."
             exit 0
           fi
           status=$(curl -sS -o response.json -w '%{http_code}' --max-time 120 -X POST \

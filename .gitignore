@@ -44,3 +44,7 @@ docker/postgres_data/
 
 # === Kiro ===
 .kiro/
+
+# === Vercel CLI (link local) ===
+.vercel
+.env.local

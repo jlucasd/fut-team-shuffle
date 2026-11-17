@@ -80,7 +80,7 @@ function useTestNotification() {
   return { testMessage, handleTest };
 }
 
-const DAILY_PUSH_HINT = 'Todo dia às 9h avisamos quem faz aniversário hoje e amanhã, mesmo com o app fechado.';
+const DAILY_PUSH_HINT = 'Todo dia às 7h da manhã avisamos quem faz aniversário hoje e amanhã, mesmo com o app fechado.';
 
 /** Push notifications (Android/iOS app) — sent by the server even with the app closed. */
 function PushNotificationControl() {

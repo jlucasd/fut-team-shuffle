@@ -230,7 +230,7 @@ O algoritmo de balanceamento segue estes passos:
 | `ADMIN_PASSWORD_HASH` | Alternativa: hash BCrypt da senha (tem prioridade sobre `ADMIN_PASSWORD`) | — |
 | `FIREBASE_CREDENTIALS` | JSON da conta de serviço do Firebase (cru ou base64); vazio desliga o push | — |
 | `CRON_SECRET` | Segredo do disparo externo `POST /api/notificacoes/aniversarios/disparar` | — |
-| `BIRTHDAY_CRON` | Horário do push diário de aniversários | `0 0 9 * * *` |
+| `BIRTHDAY_TIME` | Hora (HH:mm) a partir da qual o push diário de aniversários é enviado | `07:00` |
 | `BIRTHDAY_ZONE` | Fuso do push diário | `America/Sao_Paulo` |
 
 ### Frontend

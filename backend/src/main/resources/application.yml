@@ -17,8 +17,9 @@ app:
     credentials: ${FIREBASE_CREDENTIALS:}
 
   notifications:
-    # Daily birthday push (second minute hour day month weekday).
-    cron: ${BIRTHDAY_CRON:0 0 9 * * *}
+    # Daily birthday push is due from this local time (HH:mm). It is sent at the
+    # first check after that time, so it still goes out if the server was asleep.
+    time: ${BIRTHDAY_TIME:07:00}
     zone: ${BIRTHDAY_ZONE:America/Sao_Paulo}
     # Shared secret for POST /api/notificacoes/aniversarios/disparar (external cron). Empty = disabled.
     cron-secret: ${CRON_SECRET:}
